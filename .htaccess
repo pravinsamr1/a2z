@@ -1,0 +1,66 @@
+# ----------------------------------------------------------------------
+# A2Z Daily Cleaning Service
+# ----------------------------------------------------------------------
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS and the non-www domain
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^(.*)$ https://a2zdailycleaning.com.au/$1 [L,R=301]
+
+  # Old WordPress addresses -> new pages
+  RewriteRule ^category/blog/?(.*)$ /blog.html [L,R=301]
+  RewriteRule ^author/[^/]+/?.*$ /about-us.html [L,R=301]
+  RewriteRule ^comments/feed/?$ /blog.html [L,R=301]
+  RewriteRule ^feed/?$ /blog.html [L,R=301]
+  RewriteRule ^([a-z0-9-]+)/feed/?$ /$1.html [L,R=301]
+  RewriteRule ^(wp-json|wp-content|wp-includes|wp-admin)(/.*)?$ / [L,R=301]
+  RewriteRule ^(xmlrpc\.php|wp-login\.php)$ - [G,L]
+
+  # Old folder-style addresses (/about-us/) -> flat pages (/about-us.html)
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^([a-z0-9-]+)/?$ /$1.html [L,R=301]
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/javascript application/json application/xml image/svg+xml application/manifest+json
+</IfModule>
+
+# Caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/xml "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header unset X-Powered-By
+</IfModule>
